@@ -7,44 +7,40 @@
 namespace Silversurfer7\Sendgrid\Api\MarketingEmail\SubApi;
 
 
+use Silversurfer7\Sendgrid\Api\MarketingEmail\Exception\ElementNotFoundException;
+use Silversurfer7\Sendgrid\Api\MarketingEmail\Model\SenderIdentity;
+
 class SenderAddress extends BaseElement
 {
     const ACTION_BASE_URL = 'newsletter/identity/';
 
     public function add(
-        $senderIdentity,
-        $name,
-        $senderEmail,
-        $street,
-        $city,
-        $state,
-        $zip,
-        $country,
-        $replyToEmail = ''
+        $senderIdentifier,
+        SenderIdentity $senderIdentity
     ) {
-        $arguments = array(
-            'senderIdentity' => 'identity',
-            'senderEmail' => 'email',
-            'name' => 'name',
-            'street' => 'street',
-            'city' => 'city',
-            'state' => 'state',
-            'zip' => 'zip',
-            'country' => 'country',
-            'replyToEmail' => 'replyto'
-        );
 
-        $data = array();
-
-        foreach ($arguments as $varName => $sendgridName) {
-            if (!is_string($$varName)) {
-                throw new \InvalidArgumentException($varName . ' must be of type string');
-            }
-            if (strlen($$varName)) {
-                $data[$sendgridName] = $$varName;
-            }
+        if (!is_string($senderIdentifier) || empty($senderIdentifier)) {
+            throw new \InvalidArgumentException('senderIdentity must be of type string and not empty');
         }
 
+        if ($senderIdentity->isValid() !== true) {
+            throw new \InvalidArgumentException('sender address is not valid');
+        }
+
+        $data = array(
+            'identity' => $senderIdentifier,
+            'email' => $senderIdentity->email,
+            'name' => $senderIdentity->name,
+            'address' => $senderIdentity->address,
+            'zip' => $senderIdentity->zip,
+            'city' => $senderIdentity->city,
+            'state' => $senderIdentity->state,
+            'country' => $senderIdentity->country
+        );
+
+        if ($senderIdentity->replyTo) {
+            $data['replyto'] = $senderIdentity->replyTo;
+        }
         $this->apiClient->run(
             self::ACTION_BASE_URL . 'add',
             $data
@@ -54,40 +50,37 @@ class SenderAddress extends BaseElement
     }
 
     public function edit(
-        $senderIdentity,
-        $senderEmail,
-        $newSenderIdentity = '',
-        $name = '',
-        $street = '',
-        $city = '',
-        $state = '',
-        $zip = '',
-        $country = '',
-        $replyToEmail = ''
+        $senderIdentifier,
+        $newSenderIdentifier,
+        SenderIdentity $senderIdentity
     ) {
 
-        $arguments = array(
-            'senderIdentity' => 'identity',
-            'senderEmail' => 'email',
-            'newSenderIdentity' => 'newidentity',
-            'name' => 'name',
-            'street' => 'street',
-            'city' => 'city',
-            'state' => 'state',
-            'zip' => 'zip',
-            'country' => 'country',
-            'replyToEmail' => 'replyto'
+        if (!is_string($senderIdentifier) || empty($senderIdentifier)) {
+            throw new \InvalidArgumentException('senderIdentifier must be of type string and not empty');
+        }
+
+        if (!is_string($newSenderIdentifier) || empty($newSenderIdentifier)) {
+            throw new \InvalidArgumentException('newSenderIdentifier must be of type string and not empty');
+        }
+
+        if ($senderIdentity->isValid() !== true) {
+            throw new \InvalidArgumentException('sender identity is not valid');
+        }
+
+        $data = array(
+            'identity' => $senderIdentifier,
+            'newidentity' => $newSenderIdentifier,
+            'email' => $senderIdentity->email,
+            'name' => $senderIdentity->name,
+            'address' => $senderIdentity->address,
+            'zip' => $senderIdentity->zip,
+            'city' => $senderIdentity->city,
+            'state' => $senderIdentity->state,
+            'country' => $senderIdentity->country
         );
 
-        $data = array();
-
-        foreach ($arguments as $varName => $sendgridName) {
-            if (!is_string($$varName)) {
-                throw new \InvalidArgumentException($varName . ' must be of type string');
-            }
-            if (strlen($$varName)) {
-                $data[$sendgridName] = $$varName;
-            }
+        if ($senderIdentity->replyTo) {
+            $data['replyto'] = $senderIdentity->replyTo;
         }
 
         $this->apiClient->run(
@@ -98,43 +91,66 @@ class SenderAddress extends BaseElement
         return true;
     }
 
-    public function get($senderIdentity)
+    public function get($senderIdentifier)
     {
-        if (!is_string($senderIdentity)) {
+        if (!is_string($senderIdentifier) || empty($senderIdentifier)) {
             throw new \InvalidArgumentException('sender identity must be of type string');
         }
 
-        return $this->apiClient->run(
+        $response  = $this->apiClient->run(
             self::ACTION_BASE_URL . 'get',
-            array('identity' => $senderIdentity)
+            array('identity' => $senderIdentifier)
         );
+
+        if (empty($response)) {
+            throw new ElementNotFoundException();
+        }
+
+        $senderIdentifier = new SenderIdentity();
+        $senderIdentifier->loadFromApiResponse($response);
+
+        return $senderIdentifier;
     }
 
 
+    /**
+     * get all stored identities
+     * @return array
+     */
     public function getAll()
     {
-        return $this->apiClient->run(self::ACTION_BASE_URL . 'list', array());
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'list', array());
+        $return = array();
+        foreach ($response as $one) {
+            $return[] = $one['identity'];
+        }
+        return $return;
     }
 
-    public function exists($senderIdentity)
+    /**
+     * @param $senderIdentifier
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    public function exists($senderIdentifier)
     {
-        if (!is_string($senderIdentity)) {
+        if (!is_string($senderIdentifier)) {
             throw new \InvalidArgumentException('sender identity must be of type string');
         }
 
-        return count($this->apiClient->run(self::ACTION_BASE_URL . 'list', array('identity' => $senderIdentity))) == 1;
+        return count($this->apiClient->run(self::ACTION_BASE_URL . 'list', array('identity' => $senderIdentifier))) == 1;
     }
 
 
-    public function delete($senderIdentity)
+    public function delete($senderIdentifier)
     {
-        if (!is_string($senderIdentity)) {
+        if (!is_string($senderIdentifier)) {
             throw new \InvalidArgumentException('sender identity must be of type string');
         }
 
         return $this->apiClient->run(
             self::ACTION_BASE_URL . 'delete',
-            array('identity' => $senderIdentity)
+            array('identity' => $senderIdentifier)
         );
     }
 } 
