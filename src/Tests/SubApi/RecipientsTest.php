@@ -11,31 +11,7 @@ use PHPUnit_Framework_TestCase;
 use Silversurfer7\Sendgrid\Api\MarketingEmail\MarketingEmailApi;
 use Silversurfer7\Sendgrid\Api\MarketingEmail\Model\SenderIdentity;
 
-class SenderAddressTest extends PHPUnit_Framework_TestCase {
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function createApiMockClient() {
-        $mockClient = $this->getMockBuilder('\Silversurfer7\Sendgrid\Api\Client\SendgridApiClient')
-            ->setMethods(array('run'))
-            //->disableOriginalConstructor()
-            ->setConstructorArgs(array('login' => 'login', 'password' => 'password'))
-            ->getMock();
-
-        return $mockClient;
-    }
-
-    /**
-     * @param $mockClient
-     * @return MarketingEmailApi
-     */
-    protected function createApiClient($mockClient)
-    {
-
-        return new MarketingEmailApi($mockClient);
-    }
-
+class RecipientsTest extends SubApiTestBase {
 
     public function testCreateSenderAddress() {
 
