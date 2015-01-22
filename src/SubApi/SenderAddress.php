@@ -41,11 +41,11 @@ class SenderAddress extends BaseElement
         if ($senderIdentity->replyTo) {
             $data['replyto'] = $senderIdentity->replyTo;
         }
-        $this->apiClient->run(
-            self::ACTION_BASE_URL . 'add',
-            $data
-        );
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add',$data);
 
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -83,11 +83,11 @@ class SenderAddress extends BaseElement
             $data['replyto'] = $senderIdentity->replyTo;
         }
 
-        $this->apiClient->run(
-            self::ACTION_BASE_URL . 'edit',
-            $data
-        );
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'edit',$data);
 
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -134,17 +134,29 @@ class SenderAddress extends BaseElement
      */
     public function exists($senderIdentifier)
     {
-        if (!is_string($senderIdentifier)) {
+        if (!is_string($senderIdentifier) || empty($senderIdentifier)) {
             throw new \InvalidArgumentException('sender identity must be of type string');
         }
 
-        return count($this->apiClient->run(self::ACTION_BASE_URL . 'list', array('identity' => $senderIdentifier))) == 1;
+        $result = $this->apiClient->run(self::ACTION_BASE_URL . 'list', array('identity' => $senderIdentifier));
+
+        if (count($result) == 0) {
+            return false;
+        }
+
+        foreach ($result as $one) {
+            if ($one['identity'] == $senderIdentifier) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
 
     public function delete($senderIdentifier)
     {
-        if (!is_string($senderIdentifier)) {
+        if (!is_string($senderIdentifier) || empty($senderIdentifier)) {
             throw new \InvalidArgumentException('sender identity must be of type string');
         }
 

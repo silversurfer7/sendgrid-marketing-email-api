@@ -15,7 +15,10 @@ class Schedule extends BaseElement {
             throw new \InvalidArgumentException('email name must be of type string');
         }
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('name' => $uniqueEmailIdentifier));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('name' => $uniqueEmailIdentifier));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -29,7 +32,10 @@ class Schedule extends BaseElement {
         }
 
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('name' => $uniqueEmailIdentifier, 'after' => $minutesToWait));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('name' => $uniqueEmailIdentifier, 'after' => $minutesToWait));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -44,7 +50,10 @@ class Schedule extends BaseElement {
         }
 
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('name' => $uniqueEmailIdentifier, 'at' => $sendDate->format('c')));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('name' => $uniqueEmailIdentifier, 'at' => $sendDate->format('c')));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -67,7 +76,10 @@ class Schedule extends BaseElement {
             throw new \InvalidArgumentException('email name must be of type string');
         }
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('name' => $uniqueEmailIdentifier));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('name' => $uniqueEmailIdentifier));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 } 

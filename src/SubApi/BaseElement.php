@@ -12,7 +12,23 @@ use Silversurfer7\Sendgrid\Api\Client\SendgridApiClient;
 abstract class BaseElement {
     protected $apiClient;
 
+    protected $lastActionError = '';
+
     public function __construct(SendgridApiClient $apiClient) {
         $this->apiClient = $apiClient;
+    }
+
+    protected function wasActionSuccessful($response) {
+        $this->lastActionError = '';
+        if (!isset($response['message'])) {
+            return false;
+        }
+
+        if ($response['message'] !== 'success') {
+            $this->lastActionError = $response['message'];
+            return false;
+        }
+
+        return true;
     }
 } 

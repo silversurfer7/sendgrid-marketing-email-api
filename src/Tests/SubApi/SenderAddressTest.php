@@ -24,8 +24,6 @@ class SenderAddressTest extends SubApiTestBase {
         $senderIdentity->address = 'Gottfried-Hagen-Str. 24';
         $senderIdentity->zip = 10115;
 
-        $mockClient = $this->createApiMockClient();
-
         $testDataCallback= function ($data) use ($senderIdentity) {
 
             $this->assertArrayHasKey('name', $data);
@@ -59,13 +57,21 @@ class SenderAddressTest extends SubApiTestBase {
         };
 
 
-        $mockClient->expects($this->any())
-            ->method('run')
-            ->with($this->callback($testUrlCallback), $this->callback($testDataCallback))
-            ->willReturn(array('message' => 'success'))
-        ;
+        $mockClient = $this->createApiMockClientCallable($testUrlCallback, $testDataCallback, array('message' => 'success'));
+        $result = $this->createApiClient($mockClient)->senderAddress->add('testidentity', $senderIdentity);
+        $this->assertTrue($result);
 
-        $this->createApiClient($mockClient)->senderAddress->add('testidentity', $senderIdentity);
+        try {
+            $this->createApiClient($mockClient)->senderAddress->add('', $senderIdentity);
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
+
+        try {
+            $this->createApiClient($mockClient)->senderAddress->add(null, $senderIdentity);
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
     }
 
     public function testEditSenderAddress() {
@@ -78,8 +84,6 @@ class SenderAddressTest extends SubApiTestBase {
         $senderIdentity->state = 'Nordhrein Westfalen';
         $senderIdentity->address = 'Gottfried-Hagen-Str. 24';
         $senderIdentity->zip = 10115;
-
-        $mockClient = $this->createApiMockClient();
 
         $testDataCallback= function ($data) use ($senderIdentity) {
 
@@ -116,13 +120,21 @@ class SenderAddressTest extends SubApiTestBase {
         };
 
 
-        $mockClient->expects($this->any())
-            ->method('run')
-            ->with($this->callback($testUrlCallback), $this->callback($testDataCallback))
-            ->willReturn(array('message' => 'success'))
-        ;
+        $mockClient = $this->createApiMockClientCallable($testUrlCallback, $testDataCallback, array('message' => 'success'));
+        $result = $this->createApiClient($mockClient)->senderAddress->edit('testidentity', 'new-testidentity', $senderIdentity);
+        $this->assertTrue($result);
 
-        $this->createApiClient($mockClient)->senderAddress->edit('testidentity', 'new-testidentity', $senderIdentity);
+        try {
+            $this->createApiClient($mockClient)->senderAddress->edit('', 'new-testidentity', $senderIdentity);
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
+
+        try {
+            $this->createApiClient($mockClient)->senderAddress->edit(null, 'new-testidentity', $senderIdentity);
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
     }
 
     public function testCreateInvalidSenderAddress() {
@@ -143,8 +155,6 @@ class SenderAddressTest extends SubApiTestBase {
     }
 
     public function testGetExistingSenderAddress() {
-
-        $mockClient = $this->createApiMockClient();
 
         $testDataCallback= function ($data) {
 
@@ -170,12 +180,7 @@ class SenderAddressTest extends SubApiTestBase {
             'email' => 'sschulze@silversurfer.de',
         );
 
-        $mockClient->expects($this->any())
-            ->method('run')
-            ->with($this->callback($testUrlCallback), $this->callback($testDataCallback))
-            ->willReturn($responseData)
-        ;
-
+        $mockClient = $this->createApiMockClientCallable($testUrlCallback, $testDataCallback, $responseData);
         $response = $this->createApiClient($mockClient)->senderAddress->get('testidentity');
 
         $this->assertEquals($responseData['name'], $response->name);
@@ -187,5 +192,17 @@ class SenderAddressTest extends SubApiTestBase {
 
         $this->assertEquals($responseData['email'], $response->email);
         $this->assertEquals($responseData['replyto'], $response->replyTo);
+
+        try {
+            $this->createApiClient($mockClient)->senderAddress->get('');
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
+
+        try {
+            $this->createApiClient($mockClient)->senderAddress->get(null);
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
     }
 }

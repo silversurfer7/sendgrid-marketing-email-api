@@ -13,7 +13,7 @@ class Emails extends BaseElement {
     const ACTION_BASE_URL = 'newsletter/lists/email/';
 
     public function add($listIdentifier, array $data) {
-        if (!is_string($listIdentifier)) {
+        if (!is_string($listIdentifier) || empty($listIdentifier)) {
             throw new \InvalidArgumentException('list identifier must be of type string');
         }
 
@@ -29,10 +29,17 @@ class Emails extends BaseElement {
                 throw new InvalidRecipientDataException('recipient has no email set');
             }
 
-            if (!is_string($oneEntry) || !is_numeric($oneEntry)) {
-                throw new InvalidRecipientDataException('recipient data must be a string or numeric');
-            }
 
+            foreach ($oneEntry as $key => $value) {
+                if (!is_string($key) || empty($key)) {
+                    throw new InvalidRecipientDataException('recipient data keys must be a string');
+                }
+
+                if (!is_string($value)) {
+                    throw new InvalidRecipientDataException('recipient data values must be a string');
+                }
+
+            }
         }
 
         $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('list' => $listIdentifier, 'data' => json_encode($data)));
@@ -41,7 +48,7 @@ class Emails extends BaseElement {
     }
 
     public function get($listIdentifier, array $emailAddresses = array(), $unsubscribed = 0) {
-        if (!is_string($listIdentifier)) {
+        if (!is_string($listIdentifier) || empty($listIdentifier)) {
             throw new \InvalidArgumentException('list identifier must be of type string');
         }
 
@@ -49,11 +56,23 @@ class Emails extends BaseElement {
             throw new \InvalidArgumentException('unsubscribed must be 0 or 1');
         }
 
-        return $this->apiClient->run(self::ACTION_BASE_URL . 'get', array('list' => $listIdentifier, 'email' => $emailAddresses, 'unsubscribed' => $unsubscribed));
+        $data = array(
+            'list' => $listIdentifier
+        );
+
+        if (!empty($emailAddresses)) {
+            $data['email'] = $emailAddresses;
+        }
+
+        if ($unsubscribed === 1) {
+            $data['unsubscribed'] = 1;
+        }
+
+        return $this->apiClient->run(self::ACTION_BASE_URL . 'get', $data);
     }
 
     public function count($listIdentifier) {
-        if (!is_string($listIdentifier)) {
+        if (!is_string($listIdentifier) || empty($listIdentifier)) {
             throw new \InvalidArgumentException('list identifier must be of type string');
         }
         $result = $this->apiClient->run(self::ACTION_BASE_URL . 'count', array('list' => $listIdentifier));
@@ -61,9 +80,15 @@ class Emails extends BaseElement {
     }
 
     public function delete($listIdentifier, array $emailAdresses) {
-        if (!is_string($listIdentifier)) {
+        if (!is_string($listIdentifier) || empty($listIdentifier)) {
             throw new \InvalidArgumentException('list identifier must be of type string');
         }
-        return $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('list' => $listIdentifier, 'email' => $emailAdresses));
+
+        if (empty($emailAdresses)) {
+            throw new \InvalidArgumentException('email addresses to delete must not be empty');
+        }
+
+        $result = $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('list' => $listIdentifier, 'email' => $emailAdresses));
+        return $result['removed'];
     }
 }

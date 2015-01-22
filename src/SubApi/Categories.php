@@ -17,10 +17,13 @@ class Categories extends BaseElement {
      * @throws \InvalidArgumentException
      */
     public function create($category) {
-        if (!is_string($category)) {
+        if (!is_string($category) || empty($category)) {
             throw new \InvalidArgumentException('category must be of type string');
         }
-        $this->apiClient->run(self::ACTION_BASE_URL . 'create', array('category' => $category));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'create', array('category' => $category));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -32,14 +35,17 @@ class Categories extends BaseElement {
      * @throws \InvalidArgumentException
      */
     public function add($category, $marketingEmailIdentifier) {
-        if (!is_string($category)) {
+        if (!is_string($category) || empty($category)) {
             throw new \InvalidArgumentException('category must be of type string');
         }
 
-        if (!is_string($marketingEmailIdentifier)) {
+        if (!is_string($marketingEmailIdentifier) || empty($marketingEmailIdentifier)) {
             throw new \InvalidArgumentException('category must be of type string');
         }
-        $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('category' => $category));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('category' => $category, 'name' => $marketingEmailIdentifier));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -51,14 +57,17 @@ class Categories extends BaseElement {
      * @throws \InvalidArgumentException
      */
     public function remove($category, $marketingEmailIdentifier) {
-        if (!is_string($category)) {
+        if (!is_string($category) || empty($category)) {
             throw new \InvalidArgumentException('category must be of type string');
         }
 
-        if (!is_string($marketingEmailIdentifier)) {
+        if (!is_string($marketingEmailIdentifier) || empty($marketingEmailIdentifier)) {
             throw new \InvalidArgumentException('category must be of type string');
         }
-        $this->apiClient->run(self::ACTION_BASE_URL . 'remove', array('category' => $category, 'name' => $marketingEmailIdentifier));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'remove', array('category' => $category, 'name' => $marketingEmailIdentifier));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -69,19 +78,27 @@ class Categories extends BaseElement {
      * @throws \InvalidArgumentException
      */
     public function removeAll($marketingEmailIdentifier) {
-        if (!is_string($marketingEmailIdentifier)) {
+        if (!is_string($marketingEmailIdentifier) || empty($marketingEmailIdentifier)) {
             throw new \InvalidArgumentException('category must be of type string');
         }
-        $this->apiClient->run(self::ACTION_BASE_URL . 'remove', array('name' => $marketingEmailIdentifier));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'remove', array('name' => $marketingEmailIdentifier));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
     /**
      * list all categories
-     * @return mixed|null
+     * @return array|null
      */
     public function listAll() {
-        return $this->apiClient->run(self::ACTION_BASE_URL . 'list', array('category' => $category));
+        $result = $this->apiClient->run(self::ACTION_BASE_URL . 'list', array());
+        $returnValue = array();
+        foreach ($result as $one) {
+            $returnValue[] = $one['category'];
+        }
+        return $returnValue;
     }
 
     /**
@@ -90,11 +107,15 @@ class Categories extends BaseElement {
      * @throws \InvalidArgumentException
      */
     public function exists($category) {
-        if (!is_string($category)) {
+        if (!is_string($category) || empty($category)) {
             throw new \InvalidArgumentException('category must be of type string');
         }
         $result = $this->apiClient->run(self::ACTION_BASE_URL . 'list', array('category' => $category));
-        return !empty($result);
+        if (count($result) != 1) {
+            return false;
+        }
+
+        return $result[0]['category'] == $category;
     }
 
 

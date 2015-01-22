@@ -11,15 +11,18 @@ class Recipients extends BaseElement {
     const ACTION_BASE_URL = 'newsletter/recipients/';
 
     public function add($listIdentifier, $uniqueEmailIdentifier) {
-        if (!is_string($listIdentifier)) {
-            throw new \InvalidArgumentException('list identifier must be of type string');
+        if (!is_string($listIdentifier) || empty($listIdentifier)) {
+            throw new \InvalidArgumentException('list identifier must be of type string and must not be empty');
         }
 
         if (!is_string($uniqueEmailIdentifier) || empty($uniqueEmailIdentifier)) {
-            throw new \InvalidArgumentException('email name must be of type string');
+            throw new \InvalidArgumentException('email name must be of type string and must not be empty');
         }
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('list' => $listIdentifier, 'name' => $uniqueEmailIdentifier));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('list' => $listIdentifier, 'name' => $uniqueEmailIdentifier));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -37,15 +40,19 @@ class Recipients extends BaseElement {
     }
 
     public function deleteListFromMarketingEmail($listIdentifier, $uniqueEmailIdentifier) {
-        if (!is_string($listIdentifier)) {
-            throw new \InvalidArgumentException('list identifier must be of type string');
+        if (!is_string($listIdentifier) || empty($listIdentifier)) {
+            throw new \InvalidArgumentException('list identifier must be of type string and must not be empty');
         }
 
         if (!is_string($uniqueEmailIdentifier) || empty($uniqueEmailIdentifier)) {
-            throw new \InvalidArgumentException('email name must be of type string');
+            throw new \InvalidArgumentException('email name must be of type string and must not be empty');
         }
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('list' => $listIdentifier, 'name' => $uniqueEmailIdentifier));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('list' => $listIdentifier, 'name' => $uniqueEmailIdentifier));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
-} 
+
+}

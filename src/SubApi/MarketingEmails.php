@@ -31,7 +31,10 @@ class MarketingEmails extends BaseElement {
             throw new \InvalidArgumentException('html part must be of type string');
         }
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('identity' => $senderIdentity, 'name' => $uniqueEmailIdentifier, 'subject' => $subject, 'text' => $textPart, 'html' => $htmlPart));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('identity' => $senderIdentity, 'name' => $uniqueEmailIdentifier, 'subject' => $subject, 'text' => $textPart, 'html' => $htmlPart));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
@@ -60,12 +63,15 @@ class MarketingEmails extends BaseElement {
             throw new \InvalidArgumentException('html part must be of type string');
         }
 
-        $this->apiClient->run(self::ACTION_BASE_URL . 'edit', array('identity' => $senderIdentity, 'name' => $currentEmailIdentifier, 'newname' => $newUniqueEmailIdentifier, 'subject' => $newSubject, 'text' => $newTextPart, 'html' => $newHtmlPart));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'edit', array('identity' => $senderIdentity, 'name' => $currentEmailIdentifier, 'newname' => $newUniqueEmailIdentifier, 'subject' => $newSubject, 'text' => $newTextPart, 'html' => $newHtmlPart));
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
         return true;
     }
 
 
-    public function getContent($uniqueEmailIdentifier) {
+    public function get($uniqueEmailIdentifier) {
         if (!is_string($uniqueEmailIdentifier) || empty($uniqueEmailIdentifier)) {
             throw new \InvalidArgumentException('email identifier name must be of type string');
         }
@@ -82,13 +88,29 @@ class MarketingEmails extends BaseElement {
             throw new \InvalidArgumentException('email identifier name must be of type string');
         }
 
-        return count($this->apiClient->run(self::ACTION_BASE_URL . 'get', array('name' => $uniqueEmailIdentifier))) == 1;
+        $result = $this->apiClient->run(self::ACTION_BASE_URL . 'list', array('name' => $uniqueEmailIdentifier));
+
+        if (count($result) == 0) {
+            return false;
+        }
+
+        foreach ($result as $one) {
+            if ($one['name'] == $uniqueEmailIdentifier) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function delete($uniqueEmailIdentifier) {
         if (!is_string($uniqueEmailIdentifier) || empty($uniqueEmailIdentifier)) {
             throw new \InvalidArgumentException('email identifier name must be of type string');
         }
-        return $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('name' => $uniqueEmailIdentifier));
+        $response = $this->apiClient->run(self::ACTION_BASE_URL . 'delete', array('name' => $uniqueEmailIdentifier));
+
+        if (!$this->wasActionSuccessful($response)) {
+            return false;
+        }
+        return true;
     }
 }
