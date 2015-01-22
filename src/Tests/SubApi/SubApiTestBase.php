@@ -9,7 +9,7 @@ namespace Silversurfer7\Sendgrid\Api\MarketingEmail\Tests\SubApi;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
-use Silversurfer7\Sendgrid\Api\MarketingEmail\MarketingEmailApi;
+use Silversurfer7\Sendgrid\Api\MarketingEmail\SendgridMarketingEmailApi;
 
 abstract class SubApiTestBase extends PHPUnit_Framework_TestCase {
     /**
@@ -44,12 +44,12 @@ abstract class SubApiTestBase extends PHPUnit_Framework_TestCase {
 
     /**
      * @param $mockClient
-     * @return MarketingEmailApi
+     * @return SendgridMarketingEmailApi
      */
     protected function createApiClient($mockClient)
     {
 
-        return new MarketingEmailApi($mockClient);
+        return new SendgridMarketingEmailApi($mockClient);
     }
 
 } 

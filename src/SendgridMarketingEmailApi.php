@@ -16,7 +16,7 @@ use Silversurfer7\Sendgrid\Api\MarketingEmail\SubApi\Recipients;
 use Silversurfer7\Sendgrid\Api\MarketingEmail\SubApi\Schedule;
 use Silversurfer7\Sendgrid\Api\MarketingEmail\SubApi\SenderAddress;
 
-class MarketingEmailApi {
+class SendgridMarketingEmailApi {
 
     /** @var Categories  */
     public $categories;

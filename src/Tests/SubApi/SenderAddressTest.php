@@ -7,8 +7,6 @@
 namespace Silversurfer7\Sendgrid\Api\MarketingEmail\Tests\SubApi;
 
 
-use PHPUnit_Framework_TestCase;
-use Silversurfer7\Sendgrid\Api\MarketingEmail\MarketingEmailApi;
 use Silversurfer7\Sendgrid\Api\MarketingEmail\Model\SenderIdentity;
 
 class SenderAddressTest extends SubApiTestBase {
