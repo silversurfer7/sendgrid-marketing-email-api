@@ -20,7 +20,10 @@ abstract class BaseElement {
 
     protected function wasActionSuccessful($response) {
         $this->lastActionError = '';
-        if (!isset($response['message'])) {
+
+
+        if (isset($response['error'])) {
+            $this->lastActionError = $response['error'];
             return false;
         }
 
@@ -30,5 +33,9 @@ abstract class BaseElement {
         }
 
         return true;
+    }
+
+    public function getLastActionError() {
+        return $this->lastActionError;
     }
 } 

@@ -108,6 +108,44 @@ class ListsTest extends SubApiTestBase {
 
     }
 
+    public function testGetList() {
+
+        $testDataCallback = function ($data) {
+            $this->assertArrayHasKey('list', $data);
+
+            $this->assertEquals('listIdentifier', $data['list']);
+            return true;
+        };
+
+        $testUrlCallback= function ($url) {
+            $this->assertEquals('newsletter/lists/get', $url);
+            return true;
+        };
+
+        $testResult = array(
+            "id" =>  1,
+            "list" =>  "Testlist",
+        );
+
+        $mockClient = $this->createApiMockClientCallable($testUrlCallback, $testDataCallback, $testResult);
+        $result = $this->createApiClient($mockClient)->lists->get('listIdentifier');
+
+        $this->assertEquals($result, $testResult);
+
+
+        try {
+            $this->createApiClient($mockClient)->lists->get('');
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
+
+        try {
+            $this->createApiClient($mockClient)->lists->get(null);
+            $this->fail();
+        }
+        catch (\InvalidArgumentException $e) {}
+    }
+
     public function testGetAllLists() {
 
         $testDataCallback = function ($data) {

@@ -51,6 +51,21 @@ class Lists extends BaseElement {
         return $this->apiClient->run(self::ACTION_BASE_URL . 'get', array());
     }
 
+    public function get($listIdentifier) {
+        if (!is_string($listIdentifier) || empty($listIdentifier)) {
+            throw new \InvalidArgumentException('list identifier must be of type string');
+        }
+
+        $result = $this->apiClient->run(self::ACTION_BASE_URL . 'get', array('list' => $listIdentifier));
+
+
+        if (is_array($result)) {
+            return current($result);
+        }
+
+        return $result;
+    }
+
     public function exists($listIdentifier) {
         if (!is_string($listIdentifier) || empty($listIdentifier)) {
             throw new \InvalidArgumentException('list identifier must be of type string');

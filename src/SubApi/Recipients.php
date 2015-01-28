@@ -20,6 +20,7 @@ class Recipients extends BaseElement {
         }
 
         $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('list' => $listIdentifier, 'name' => $uniqueEmailIdentifier));
+
         if (!$this->wasActionSuccessful($response)) {
             return false;
         }

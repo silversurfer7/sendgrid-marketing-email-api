@@ -23,8 +23,9 @@ class SenderAddress extends BaseElement
             throw new \InvalidArgumentException('senderIdentity must be of type string and not empty');
         }
 
-        if ($senderIdentity->isValid() !== true) {
-            throw new \InvalidArgumentException('sender address is not valid');
+        if (($validationResult = $senderIdentity->isValid()) !== true) {
+            var_dump($senderIdentity);
+            throw new \InvalidArgumentException('sender identity is not valid; Fields with errors: ' . implode(', ', $validationResult));
         }
 
         $data = array(
