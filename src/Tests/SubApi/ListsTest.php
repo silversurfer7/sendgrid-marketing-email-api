@@ -122,15 +122,18 @@ class ListsTest extends SubApiTestBase {
             return true;
         };
 
-        $testResult = array(
-            "id" =>  1,
-            "list" =>  "Testlist",
+        $testResult =
+            array(
+                array(
+                    "id" =>  1,
+                    "list" =>  "listIdentifier",
+                )
         );
 
         $mockClient = $this->createApiMockClientCallable($testUrlCallback, $testDataCallback, $testResult);
         $result = $this->createApiClient($mockClient)->lists->get('listIdentifier');
 
-        $this->assertEquals($result, $testResult);
+        $this->assertEquals($result, current($testResult));
 
 
         try {

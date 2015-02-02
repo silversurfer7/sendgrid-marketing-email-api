@@ -30,7 +30,6 @@ class Emails extends BaseElement {
         }
 
         $dataToSend = array();
-
         foreach ($data as $oneEntry) {
 
             if (!($oneEntry instanceof EmailRecipient)) {
@@ -52,7 +51,6 @@ class Emails extends BaseElement {
 
             $dataToSend[] = json_encode($tmpData);
         }
-
         $response = $this->apiClient->run(self::ACTION_BASE_URL . 'add', array('list' => $listIdentifier, 'data' => $dataToSend));
 
         return $response['inserted'];
