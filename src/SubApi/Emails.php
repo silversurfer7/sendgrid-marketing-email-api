@@ -29,6 +29,10 @@ class Emails extends BaseElement {
             throw new InvalidRecipientDataException('a maximum of 1000 entries can be added per run');
         }
 
+        if (empty($data)) {
+            return 0;
+        }
+
         $dataToSend = array();
         foreach ($data as $oneEntry) {
 

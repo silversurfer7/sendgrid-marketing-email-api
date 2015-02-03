@@ -93,6 +93,11 @@ class EmailsTest extends SubApiTestBase
         } catch (InvalidRecipientDataException $e) {
         }
 
+        // add an empty list
+        $result = $this->createApiClient($mockClient)->emails->add('listIdentifier', array());
+        $this->assertEquals(0, $result);
+
+
         try {
             $senderAddress = new EmailRecipient('sschulze@silversurfer7.de', null);
             $this->fail();
